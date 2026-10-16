@@ -1,0 +1,17 @@
+[build-systems]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python_objr_module"
+version = "1.0.0"
+description = "Python wrapper for ScotGov OBJR package for transferring data to/from Objective Connect"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = ["openpyxl>=3.1",
+                "pandas>=2.0",
+                "pyjanitor>=0.29",
+                "pyarrow>=14"]
+
+[tool.setuptools.package-data]
+python_objr_module = ["*.R","*.r"]

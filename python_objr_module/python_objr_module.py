@@ -98,21 +98,28 @@ class Objr:
            except:
                   print("Something went wrong")
 
-    def get_version_info(self, file_uuid: str):
-            try:
-                credentials = self.credential_fetcher.fetch_credentials()
-                result = subprocess.run([RSCRIPT_EXE, str(HERE/"oc_get_version_info.r"), file_uuid],
-                        env = {"OBJR_USR": credentials.username, "OBJR_PWD": credentials.password},
-                        check=True,
-                        capture_output=True)
-                
+    def get_version_info(self, file_list: list, file_names: list):
+        credentials = self.credential_fetcher.fetch_credentials()
+
+        dataframe_dict = {}
+
+        try:
+            for idx, key in enumerate(file_list):
+
+                file_uuid = file_list[idx]
+                filename = file_names[idx]
+
+                result = subprocess.run(["/usr/local/bin/Rscript", "oc_get_version_info.r", file_uuid],
+                                        env = {"OBJR_USR": credentials.username, "OBJR_PWD": credentials.password},
+                                        check=True,
+                                        capture_output=True)
                 data = json.loads(result.stdout)
                 df = pd.DataFrame(data)
+                dataframe_dict[filename] = df
+            return dataframe_dict
 
-                return df
-
-            except:
-                    print("Something went wrong")
+        except:
+            print("Something went wrong")
 
 def decode_filename(name: str):
     decoded_parts = decode_header(name)
@@ -141,7 +148,7 @@ def upload_version_to_oc(filepath: str, file_uuid: str):
     objr = Objr(credential_fetcher=credential_fetching_method)
     return objr.upload_new_version(filepath, file_uuid)
 
-def print_version_info(file_uuid: str):
+def print_version_info(uuids: list, file_names: list):
     credential_fetching_method = CommandLineCredentialFetcher()
     objr = Objr(credential_fetcher=credential_fetching_method)
-    return objr.get_version_info(file_uuid)
+    return objr.get_version_info(uuids, file_names)
